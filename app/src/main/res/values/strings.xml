@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">MySoothe</string>
+    <string name="inversions">Inversions</string>
+    <string name="quick_yoga">Quick Yoga</string>
+    <string name="stretching">Stretching</string>
+    <string name="tabata">Tabata</string>
+    <string name="hiit">Hiit</string>
+    <string name="pre_natal_yoga">Pre Natal Yoga</string>
+    <string name="short_mantras">Short mantras</string>
+    <string name="nature_meditations">Nature meditations</string>
+    <string name="stress_and_anxiety">Stress and anxiety</string>
+    <string name="self_and_massage">Self and massage</string>
+    <string name="overwhelmed">Overwhelmed</string>
+    <string name="nightly_wind_down">Nightly wind down</string>
+    <string name="categories_title">Align your Body</string>
+    <string name="favorite_collections_title">Favorite Collections</string>
+    <string name="home_icon">Home Icon</string>
+</resources>
