@@ -15,4 +15,6 @@
     <string name="categories_title">Align your Body</string>
     <string name="favorite_collections_title">Favorite Collections</string>
     <string name="home_icon">Home Icon</string>
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
 </resources>

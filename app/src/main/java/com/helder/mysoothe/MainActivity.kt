@@ -250,7 +250,7 @@ fun MyBottomAppBar() {
                     )
                 )
                 Text(
-                    text = "Home",
+                    text = stringResource(R.string.home),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -268,7 +268,7 @@ fun MyBottomAppBar() {
                     )
                 )
                 Text(
-                    text = "Profile",
+                    text = stringResource(R.string.profile),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
