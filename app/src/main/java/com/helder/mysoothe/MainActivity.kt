@@ -83,36 +83,41 @@ fun MyAppPortraitOrientation() {
                 .padding(paddingValues = innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            TextField(
-                value = "",
-                onValueChange = {},
-                label = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = ""
-                        )
-                        Text(
-                            text = "Search",
-                            modifier = Modifier.padding(
-                                start = 8.dp,
-                                top = 0.dp,
-                                end = 0.dp,
-                                bottom = 0.dp
-                            )
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
+            CustomSearchBar()
             CategoryList()
             FavoriteCollections()
         }
     }
+}
+
+@Composable
+fun CustomSearchBar() {
+    TextField(
+        value = "",
+        onValueChange = {},
+        label = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = ""
+                )
+                Text(
+                    text = "Search",
+                    modifier = Modifier.padding(
+                        start = 8.dp,
+                        top = 0.dp,
+                        end = 0.dp,
+                        bottom = 0.dp
+                    )
+                )
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    )
 }
 
 @Composable
@@ -130,32 +135,7 @@ fun MyAppLandscapeOrientation() {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            TextField(
-                value = "",
-                onValueChange = {},
-                label = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = ""
-                        )
-                        Text(
-                            text = "Search",
-                            modifier = Modifier.padding(
-                                start = 8.dp,
-                                top = 0.dp,
-                                end = 0.dp,
-                                bottom = 0.dp
-                            )
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
+            CustomSearchBar()
             CategoryList()
             FavoriteCollections()
         }
