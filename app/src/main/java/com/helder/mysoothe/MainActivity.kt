@@ -1,19 +1,29 @@
 package com.helder.mysoothe
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -21,14 +31,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Spa
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,20 +58,18 @@ import androidx.compose.ui.unit.dp
 import com.helder.mysoothe.ui.theme.MySootheTheme
 
 class MainActivity : ComponentActivity() {
+
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MySootheTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (this.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        MyAppPortraitOrientation()
-                    } else {
-                        MyAppLandscapeOrientation()
-                    }
+                    val windowSizeClass = calculateWindowSizeClass(activity = this)
+                    MySootheApp(windowSize = windowSizeClass)
                 }
             }
         }
@@ -62,270 +77,251 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyAppPortraitOrientation() {
+fun MySootheApp(windowSize: WindowSizeClass) {
+    when (windowSize.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
+            MySootheAppPortraitOrientation()
+        }
+
+        WindowWidthSizeClass.Expanded -> {
+            MySootheAppLandscapeOrientation()
+        }
+    }
+}
+
+@Composable
+fun MySootheAppPortraitOrientation() {
     Scaffold(
-        topBar = {},
         bottomBar = {
-            BottomAppBar {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    NavigationBarContent()
-                }
-            }
-        },
-    ) { innerPadding ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(paddingValues = innerPadding)
-                .verticalScroll(rememberScrollState())
+            AppNavigationBar()
+        }
+    ) { padding ->
+        HomeScreen(modifier = Modifier.padding(padding))
+    }
+}
+
+@Composable
+fun MySootheAppLandscapeOrientation(modifier: Modifier = Modifier) {
+    Surface(color = MaterialTheme.colorScheme.background) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
         ) {
-            CustomSearchBar()
+            AppNavigationRail()
+            HomeScreen(modifier = modifier)
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(modifier: Modifier) {
+    Column(
+        modifier.verticalScroll(rememberScrollState())
+    ) {
+        CustomSearchBar(Modifier.padding(horizontal = 16.dp))
+        HomeSection(title = R.string.categories_title) {
             CategoryList()
+        }
+        HomeSection(title = R.string.favorite_collections_title) {
             FavoriteCollections()
         }
+        Spacer(modifier = modifier.height(16.dp))
     }
 }
 
 @Composable
-fun CustomSearchBar() {
+fun HomeSection(
+    @StringRes title: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Column(modifier) {
+        Text(
+            text = stringResource(id = title),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier
+                .paddingFromBaseline(top = 40.dp, bottom = 16.dp)
+                .padding(horizontal = 16.dp)
+        )
+        content()
+    }
+}
+
+@Composable
+fun CustomSearchBar(modifier: Modifier) {
     TextField(
         value = "",
         onValueChange = {},
-        label = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = ""
-                )
-                Text(
-                    text = "Search",
-                    modifier = Modifier.padding(
-                        start = 8.dp,
-                        top = 0.dp,
-                        end = 0.dp,
-                        bottom = 0.dp
-                    )
-                )
-            }
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null
+            )
         },
-        modifier = Modifier
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedContainerColor = MaterialTheme.colorScheme.surface
+        ),
+        placeholder = {
+            Text(text = stringResource(R.string.search))
+        },
+        modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .heightIn(min = 56.dp)
     )
 }
 
 @Composable
-fun MyAppLandscapeOrientation() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
+fun AppNavigationBar(modifier: Modifier = Modifier) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = modifier
     ) {
-        Column(
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            NavigationBarContent()
-        }
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Spa,
+                    contentDescription = null
+                )
+            },
+            label = {
+                Text(text = stringResource(R.string.home))
+            },
+            selected = true,
+            onClick = { }
+        )
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null
+                )
+            },
+            label = {
+                Text(text = stringResource(R.string.profile))
+            },
+            selected = false,
+            onClick = { }
+        )
+    }
+}
+
+@Composable
+fun AppNavigationRail(modifier: Modifier = Modifier) {
+    NavigationRail(
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = modifier.padding(horizontal = 8.dp),
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier.fillMaxHeight()
         ) {
-            CustomSearchBar()
-            CategoryList()
-            FavoriteCollections()
+            NavigationRailItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Spa,
+                        contentDescription = null
+                    )
+                },
+                label = {
+                    Text(text = stringResource(R.string.home))
+                },
+                selected = true,
+                onClick = { }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            NavigationRailItem(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = null
+                    )
+                },
+                label = {
+                    Text(text = stringResource(R.string.profile))
+                },
+                selected = false,
+                onClick = { }
+            )
         }
-    }
-}
-
-@Composable
-fun NavigationBarContent() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(
-            horizontal = 0.dp, vertical = 4.dp
-        )
-    ) {
-        Icon(
-            imageVector = Icons.Default.Spa,
-            contentDescription = stringResource(R.string.home_icon),
-            modifier = Modifier.padding(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 4.dp
-            )
-        )
-        Text(
-            text = stringResource(R.string.home),
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(
-                horizontal = 0.dp, vertical = 4.dp
-    )
-    ) {
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = stringResource(R.string.home_icon),
-            modifier = Modifier.padding(
-                start = 0.dp,
-                top = 0.dp,
-                end = 0.dp,
-                bottom = 4.dp
-            )
-        )
-        Text(
-            text = stringResource(R.string.profile),
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
-}
-
-@Composable
-fun BodyAlignmentCategory(resource: Int, category: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = resource),
-            contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(100.dp)
-                .padding(8.dp)
-                .clip(CircleShape)
-        )
-        Text(text = category)
     }
 }
 
 @Composable
 fun CategoryList() {
-    Column {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(MockDataSource.getBodyAlignmentList()) { alignmentCategory ->
+            BodyAlignmentCategory(alignmentCategory)
+        }
+    }
+}
+
+@Composable
+fun BodyAlignmentCategory(alignmentCategory: DataResource) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Image(
+            painter = painterResource(alignmentCategory.imageResource),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(88.dp)
+                .clip(CircleShape)
+        )
         Text(
-            text = stringResource(R.string.categories_title),
-            modifier = Modifier.padding(
-                horizontal = 12.dp,
-                vertical = 16.dp
+            text = stringResource(id = alignmentCategory.text),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.paddingFromBaseline(
+                top = 24.dp,
+                bottom = 8.dp
             )
         )
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-        ) {
-            BodyAlignmentCategory(
-                resource = R.drawable.ab1_inversions,
-                stringResource(R.string.inversions)
-            )
-            BodyAlignmentCategory(
-                resource = R.drawable.ab2_quick_yoga,
-                stringResource(R.string.quick_yoga)
-            )
-            BodyAlignmentCategory(
-                resource = R.drawable.ab3_stretching,
-                stringResource(R.string.stretching)
-            )
-            BodyAlignmentCategory(
-                resource = R.drawable.ab4_tabata,
-                stringResource(R.string.tabata)
-            )
-            BodyAlignmentCategory(
-                resource = R.drawable.ab5_hiit,
-                stringResource(R.string.hiit)
-            )
-            BodyAlignmentCategory(
-                resource = R.drawable.ab6_pre_natal_yoga,
-                stringResource(R.string.pre_natal_yoga)
-            )
-        }
     }
 }
 
 @Composable
 fun FavoriteCollections() {
-    Column {
-        Text(
-            text = stringResource(R.string.favorite_collections_title),
-            modifier = Modifier.padding(
-                start = 12.dp,
-                top = 32.dp,
-                end = 0.dp,
-                bottom = 16.dp
-            )
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-        ) {
-            Column {
-                ExerciseCollection(
-                    resource = R.drawable.fc1_short_mantras,
-                    title = stringResource(R.string.short_mantras)
-                )
-                ExerciseCollection(
-                    resource = R.drawable.fc2_nature_meditations,
-                    title = stringResource(R.string.nature_meditations)
-                )
-            }
-            Column {
-                ExerciseCollection(
-                    resource = R.drawable.fc3_stress_and_anxiety,
-                    title = stringResource(R.string.stress_and_anxiety)
-                )
-                ExerciseCollection(
-                    resource = R.drawable.fc4_self_massage,
-                    title = stringResource(R.string.self_and_massage)
-                )
-
-            }
-            Column {
-                ExerciseCollection(
-                    resource = R.drawable.fc5_overwhelmed,
-                    title = stringResource(R.string.overwhelmed)
-                )
-                ExerciseCollection(
-                    resource = R.drawable.fc6_nightly_wind_down,
-                    title = stringResource(R.string.nightly_wind_down)
-                )
-            }
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(168.dp)
+    ) {
+        items(MockDataSource.getExerciseList()) { exerciseCollection ->
+            ExerciseCollection(exerciseCollection)
         }
     }
 }
 
 @Composable
-fun ExerciseCollection(resource: Int, title: String) {
-    Card(
-        modifier = Modifier
-            .size(width = 280.dp, height = 80.dp)
-            .padding(8.dp)
+fun ExerciseCollection(exerciseCollection: DataResource) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.width(255.dp)
         ) {
             Image(
-                painter = painterResource(id = resource),
-                contentDescription = "",
-                modifier = Modifier.width(80.dp),
-                contentScale = ContentScale.Crop
+                painter = painterResource(id = exerciseCollection.imageResource),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(80.dp)
             )
             Text(
-                text = title,
-                modifier = Modifier.padding(
-                    start = 12.dp,
-                    top = 0.dp,
-                    end = 0.dp,
-                    bottom = 0.dp
-                )
+                text = stringResource(id = exerciseCollection.text),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
     }
@@ -339,7 +335,7 @@ fun MyAppPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            MyAppPortraitOrientation()
+            MySootheAppPortraitOrientation()
         }
     }
 }
